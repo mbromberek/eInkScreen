@@ -130,7 +130,7 @@ def get_weather(dt) -> List[str]:
     return w
     
     
-def get_weather_darksky(dt) -> List[str]:
+def get_weather_darksky(dt):
     logger.info('Retrieving weather')
     
     baseURL = WEATHER_BASE_URL
@@ -162,5 +162,36 @@ def get_weather_darksky(dt) -> List[str]:
     w['date'] = dt
 
     return w
+
+def split_text(s, max_width) -> List[str]:
+    logger.info('split_text to width: ' + str(max_width))
+    str_split_lst = []
+    s_tmp = s
+    while True:
+        if len(s_tmp) <= max_width:
+            str_split_index = -1 #Use all of the remaining string
+        else:
+            str_split_index = s_tmp[0:max_width].rfind(' ')
+        if str_split_index == -1: #this logic does not work if there is a word with over max_width in length
+            str_split_lst.append(s_tmp)
+            return str_split_lst
+        str_split_lst.append(s_tmp[0:str_split_index])
+        s_tmp = s_tmp[str_split_index+1:]
     
+def get_run_summary() -> List[str]:
+    logger.info('run summary')
+    
+    baseURL = WRKT_URL
+    token = WRKT_KEY
+    
+    r = requests.get(baseURL + '/api/run_summary/', headers={'Authorization':'Bearer ' + token}, verify=True)
+    if r.status_code == 200:
+        data = r.json()
+        logger.info(data)
+        return data
+    else:
+        return None
+
+def get_tasks() -> List[str]:
+    return ['Contacts Tomorrow', 'Put out Garbage']
     
