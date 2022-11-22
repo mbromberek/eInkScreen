@@ -157,14 +157,16 @@ def get_weather_darksky(dt):
     w['sunset'] = weatherDay['sunsetTime']
     w['moonPhase'] = weatherDay['moonPhase']
     
+    w['temperature'] = weatherData['currently']['temperature']
+    
     w['lat'] = lat
     w['lon'] = lon
     w['date'] = dt
 
     return w
 
-def split_text(s, max_width) -> List[str]:
-    logger.info('split_text to width: ' + str(max_width))
+def split_text(s, max_width, new_line_start='') -> List[str]:
+    # logger.info('split_text to width: ' + str(max_width))
     str_split_lst = []
     s_tmp = s
     while True:
@@ -176,7 +178,7 @@ def split_text(s, max_width) -> List[str]:
             str_split_lst.append(s_tmp)
             return str_split_lst
         str_split_lst.append(s_tmp[0:str_split_index])
-        s_tmp = s_tmp[str_split_index+1:]
+        s_tmp = new_line_start + s_tmp[str_split_index+1:]
     
 def get_run_summary() -> List[str]:
     logger.info('run summary')
@@ -187,11 +189,26 @@ def get_run_summary() -> List[str]:
     r = requests.get(baseURL + '/api/run_summary/', headers={'Authorization':'Bearer ' + token}, verify=True)
     if r.status_code == 200:
         data = r.json()
-        logger.info(data)
+        # logger.info(data)
         return data
     else:
         return None
 
 def get_tasks() -> List[str]:
     return ['Contacts Tomorrow', 'Put out Garbage']
+
+def get_current_books() -> List[str]:
+    logger.info('current books')
+    baseURL = WRKT_URL
+    token = WRKT_KEY
+    
+    r = requests.get(baseURL + '/api/books/?status=reading', \
+        headers={'Authorization':'Bearer ' + token}, verify=True)
+    if r.status_code == 200:
+        data = r.json()
+        # logger.info(data)
+        return data
+    else:
+        return None
+
     
