@@ -5,4 +5,5 @@ bcm2835-1.60.tar.gz
 bcm2835-1.60
 __pycache__/*
 .cache/*
+*.pyc
 

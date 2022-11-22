@@ -171,7 +171,7 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
                       font=curr_font, fill=1)
 
     current_height += get_font_height(curr_font)
-    max_char = 22
+    max_char = 30
     max_sum_rows = 3
     
     weather_sum_lst = split_text(curr_weather['summary'], max_char)
@@ -196,9 +196,10 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
 
     tmp_right_aligned = (width - PADDING_L/4) /2
     current_height += PADDING_TOP
+    '''
     draw_blk.line((PADDING_L+width/2, current_height, width - PADDING_L/2, current_height),
                   fill=1, width=LINE_WIDTH)
-    
+    '''
 
     '''
     tmp_right_aligned = width - \

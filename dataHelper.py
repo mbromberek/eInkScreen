@@ -28,6 +28,11 @@ def get_events(max_number: int) -> List[Event]:
 
     try:
         event_list = events(WEBDAV_CALENDAR_URL, fix_apple=WEBDAV_IS_APPLE)
+        logger.info(event_list)
+        #logger.info(WEBDAV_CALENDAR_URL_1)
+        #event_list_2 = events(WEBDAV_CALENDAR_URL_1, fix_apple=WEBDAV_IS_APPLE)
+        #logger.info(event_list_2)
+        #event_list.extend(event_list_2)
         event_list.sort(key=sort_by_date)
 
         start_count = 0
