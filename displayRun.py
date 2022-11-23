@@ -45,6 +45,10 @@ FONT_ROBOTO_P = ImageFont.truetype(
     os.path.join(FONT_DICT, 'Roboto-Black.ttf'), 20)
 FONT_POPPINS_BOLT_P = ImageFont.truetype(
     os.path.join(FONT_DICT, 'Poppins-Bold.ttf'), 22)
+FONT_POPPINS_P1 = ImageFont.truetype(
+    os.path.join(FONT_DICT, 'Poppins-Regular.ttf'), 22)
+FONT_POPPINS_P2 = ImageFont.truetype(
+    os.path.join(FONT_DICT, 'Poppins-Regular.ttf'), 20)
 FONT_POPPINS_P = ImageFont.truetype(
     os.path.join(FONT_DICT, 'Poppins-Regular.ttf'), 20)
 LINE_WIDTH = 3
@@ -159,7 +163,8 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
                       font=FONT_ROBOTO_TEMPERATURE, fill=1)
     current_height += get_font_height(FONT_ROBOTO_TEMPERATURE)
     
-    curr_font = FONT_ROBOTO_P
+    # curr_font = FONT_ROBOTO_P
+    curr_font = FONT_POPPINS_P1
 
     sunrise_tm = 'Rise: ' + datetime.fromtimestamp(curr_weather['sunrise']).strftime('%H:%M')
     sunset_tm = 'Set: ' + datetime.fromtimestamp(curr_weather['sunset']).strftime('%H:%M')
@@ -171,7 +176,7 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
                       font=curr_font, fill=1)
 
     current_height += get_font_height(curr_font)
-    max_char = 30
+    max_char = 20
     max_sum_rows = 3
     
     weather_sum_lst = split_text(curr_weather['summary'], max_char)
@@ -179,7 +184,7 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
         if index >= max_sum_rows:
             weather_sum = '...' #If hit max rows then display a row with just ... and exit loop
         tmp_right_aligned = width - \
-            get_font_width(FONT_ROBOTO_P, weather_sum ) - PADDING_L
+            get_font_width(curr_font, weather_sum ) - PADDING_L
         draw_blk.text((tmp_right_aligned, current_height), weather_sum,
                       font=curr_font, fill=1)
         current_height += get_font_height(curr_font)
@@ -188,7 +193,7 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
 
 
     tmp_right_aligned = width - \
-        get_font_width(FONT_ROBOTO_P, sunrise_tm + ' / ' + sunset_tm) - PADDING_L
+        get_font_width(curr_font, sunrise_tm + ' / ' + sunset_tm) - PADDING_L
     draw_blk.text((tmp_right_aligned, current_height), 
                   sunrise_tm + ' / ' + sunset_tm,
                   font=curr_font, fill=1)
@@ -278,7 +283,7 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
                   font=FONT_ROBOTO_H3, fill=1)
     current_height += get_font_height(FONT_ROBOTO_H3)
     run_sum = get_run_summary()
-    run_sum_font = FONT_ROBOTO_P
+    run_sum_font = FONT_POPPINS_P2
     # curr_week_dist = str(round(float(run_sum['Current Week']['tot_dist']))) + 'mi'
     curr_week_dur = run_sum['Current Week']['duration_str']
     # curr_month_dist = str(run_sum['Current Month']['tot_dist']) + 'mi'
@@ -317,8 +322,8 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
                   font=FONT_ROBOTO_H3, fill=1)
     current_height += get_font_height(FONT_ROBOTO_H3)
     curr_book_lst = get_current_books()
-    book_font = FONT_ROBOTO_P
-    max_char = 50
+    book_font = FONT_POPPINS_P2
+    max_char = 42
     max_sum_rows = 2
     for book in curr_book_lst:
         book_author =  '   by ' + book['author']
