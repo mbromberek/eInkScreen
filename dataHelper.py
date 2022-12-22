@@ -155,7 +155,7 @@ def get_weather_darksky(dt):
     w['maxTemp'] = weatherDay['temperatureMax']
     w['minTemp'] = weatherDay['temperatureMin']
     # w['avgTemp'] = weatherDay['avgtemp_f']
-    w['summary'] = weatherDay['summary']
+    w['day_summary'] = weatherDay['summary']
     # w['totalPrecip'] = weatherDay['totalprecip_in']
     
     w['sunrise'] = weatherDay['sunriseTime']
@@ -163,6 +163,7 @@ def get_weather_darksky(dt):
     w['moonPhase'] = weatherDay['moonPhase']
     
     w['temperature'] = weatherData['currently']['temperature']
+    w['curr_summary'] = weatherData['currently']['summary']
     
     w['lat'] = lat
     w['lon'] = lon
@@ -170,10 +171,11 @@ def get_weather_darksky(dt):
 
     return w
 
-def split_text(s, max_width, new_line_start='') -> List[str]:
+def split_text(s, max_width, new_line_start='', max_rows=9999) -> List[str]:
     # logger.info('split_text to width: ' + str(max_width))
     str_split_lst = []
     s_tmp = s
+    row_ct = 1
     while True:
         if len(s_tmp) <= max_width:
             str_split_index = -1 #Use all of the remaining string
@@ -182,8 +184,17 @@ def split_text(s, max_width, new_line_start='') -> List[str]:
         if str_split_index == -1: #this logic does not work if there is a word with over max_width in length
             str_split_lst.append(s_tmp)
             return str_split_lst
-        str_split_lst.append(s_tmp[0:str_split_index])
+        if row_ct == max_rows:
+            if str_split_index >=max_width-3:
+                str_split_lst.append(s_tmp[0:str_split_index-3]+'...')
+            else:
+                str_split_lst.append(s_tmp[0:str_split_index]+'...')
+            return str_split_lst
+        else:
+            str_split_lst.append(s_tmp[0:str_split_index])
         s_tmp = new_line_start + s_tmp[str_split_index+1:]
+        row_ct +=1
+
     
 def get_run_summary() -> List[str]:
     logger.info('run summary')
@@ -199,9 +210,6 @@ def get_run_summary() -> List[str]:
     else:
         return None
 
-def get_tasks() -> List[str]:
-    return ['Contacts Tomorrow', 'Put out Garbage']
-
 def get_current_books() -> List[str]:
     logger.info('current books')
     baseURL = WRKT_URL
@@ -216,4 +224,6 @@ def get_current_books() -> List[str]:
     else:
         return None
 
-    
+def get_tasks() -> List[str]:
+    return []
+

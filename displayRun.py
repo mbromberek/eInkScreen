@@ -16,7 +16,8 @@ from PIL.ImageDraw import ImageDraw as TImageDraw
 
 import lib.epd7in5b_V2 as eInk
 from dataHelper import get_events, get_birthdays, get_weather_darksky, \
-    get_run_summary, split_text, get_tasks, get_current_books
+    get_run_summary, split_text, get_current_books, get_tasks
+# from dataHelper_test import get_tasks , get_weather_darksky
 from displayHelpers import *
 from settings import LOCALE, ROTATE_IMAGE
 
@@ -46,7 +47,7 @@ FONT_ROBOTO_P = ImageFont.truetype(
 FONT_POPPINS_BOLT_P = ImageFont.truetype(
     os.path.join(FONT_DICT, 'Poppins-Bold.ttf'), 22)
 FONT_POPPINS_P1 = ImageFont.truetype(
-    os.path.join(FONT_DICT, 'Poppins-Regular.ttf'), 22)
+    os.path.join(FONT_DICT, 'Poppins-Regular.ttf'), 25)
 FONT_POPPINS_P2 = ImageFont.truetype(
     os.path.join(FONT_DICT, 'Poppins-Regular.ttf'), 20)
 FONT_POPPINS_P = ImageFont.truetype(
@@ -91,39 +92,43 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
     PADDING_L = int(10)
     PADDING_TOP = int(height/100)
     # PADDING_TOP = int(height/100)
+
+    # Day and Month
     now = time.localtime()
     max_days_in_month = calendar.monthrange(now.tm_year, now.tm_mon)[1]
-    day_str = time.strftime("%A")
+    day_str = time.strftime("%A").upper()
     day_number = now.tm_mday
-    month_str = time.strftime("%B")
+    month_str = time.strftime("%B").upper()
 
     # draw_text_centered(str(day_number), (width/2, 0), draw_blk, FONT_ROBOTO_H1)
 
-    # Heading
-    '''
-    current_height = height/20
-    draw_blk.line((int(0), current_height, width, current_height),
-                  fill=1, width=LINE_WIDTH)
-    '''
     current_height = PADDING_TOP
-    draw_blk.text((PADDING_L, current_height), day_str.upper(),
-                  font=FONT_ROBOTO_H3, fill=1)
-    current_height += get_font_height(FONT_ROBOTO_H3)
-    draw_blk.text((PADDING_L, current_height), month_str.upper(),
-                  font=FONT_ROBOTO_H3, fill=1)
-    '''
-    tmp_right_aligned = width - \
-        get_font_width(FONT_ROBOTO_H3, day_str.upper()) - PADDING_L/4
-    draw_blk.text((tmp_right_aligned, current_height), day_str.upper(),
-                  font=FONT_ROBOTO_H3, fill=1)
-    '''
-    current_height += get_font_height(FONT_ROBOTO_H3)
+    curr_font = FONT_ROBOTO_H1
+    draw_blk.text((PADDING_L, current_height), day_str,
+                  font=curr_font, fill=1)
+    current_height += get_font_height(curr_font)
+    draw_blk.text((PADDING_L, current_height), month_str,
+                  font=curr_font, fill=1)
+    current_height += get_font_height(curr_font)
 
-    # Date
+    # Tasks
+    curr_font = FONT_ROBOTO_P
+    tasks_lst = get_tasks()
+    current_height = display_rows(tasks_lst, curr_font, draw_blk, PADDING_L, current_height, 4)
+    # if len(tasks_lst) >0:
+    #     current_height += PADDING_TOP
+
+
+    # Date Number
+    current_height = PADDING_TOP
     current_font_height = get_font_height(FONT_ROBOTO_DATE)
-    draw_blk.text((PADDING_L, current_height - current_font_height/10),
+    tmp_right_aligned = width - \
+        get_font_width(FONT_ROBOTO_DATE, str(day_number)) - PADDING_L
+    draw_blk.text((tmp_right_aligned, current_height - current_font_height/10),
                   str(day_number), font=FONT_ROBOTO_DATE, fill=1)
     current_height += current_font_height
+
+
 
     # Month-Overview (with day-string)
     '''
@@ -147,60 +152,78 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
 
 
 
-
     # Weather
     # current_height = height/20 + 10
-    current_height = PADDING_TOP + 5
+    # current_height = PADDING_TOP + 5
 
     dttm = datetime.now()
     degree_sign = u'\N{DEGREE SIGN}'
     curr_weather = get_weather_darksky(dttm)
     
     curr_temp = str(round(curr_weather['temperature'])) + degree_sign
-    tmp_right_aligned = width - \
-        get_font_width(FONT_ROBOTO_TEMPERATURE, curr_temp) - PADDING_L
-    draw_red.text((tmp_right_aligned, current_height), curr_temp,
+    draw_red.text((PADDING_L, current_height-20), curr_temp,
                       font=FONT_ROBOTO_TEMPERATURE, fill=1)
-    current_height += get_font_height(FONT_ROBOTO_TEMPERATURE)
+    height_left = current_height + get_font_height(FONT_ROBOTO_TEMPERATURE)
+
+    curr_font = FONT_POPPINS_P1
+    curr_summary = split_text(curr_weather['curr_summary'], max_width=22, max_rows=3)
+    for txt in curr_summary:
+        tmp_right_aligned = width - \
+            get_font_width(curr_font, txt) - PADDING_L
+        draw_blk.text((tmp_right_aligned, current_height), txt,
+            font=curr_font, fill=1)
+        current_height += get_font_height(curr_font)
     
     # curr_font = FONT_ROBOTO_P
-    curr_font = FONT_POPPINS_P1
+
+    # current_height += get_font_height(curr_font)
+
+    if height_left > current_height:
+        current_height = height_left
+
+    max_min_temp = str(round(curr_weather['maxTemp'])) + degree_sign + ' / ' + str(round(curr_weather['minTemp'])) + degree_sign
+    tmp_right_aligned = width - \
+        get_font_width(curr_font, max_min_temp) - PADDING_L
+    draw_blk.text((PADDING_L, current_height), max_min_temp,
+                      font=curr_font, fill=1)
 
     sunrise_tm = 'Rise: ' + datetime.fromtimestamp(curr_weather['sunrise']).strftime('%H:%M')
     sunset_tm = 'Set: ' + datetime.fromtimestamp(curr_weather['sunset']).strftime('%H:%M')
-
-    weather_temp = str(round(curr_weather['maxTemp'])) + degree_sign + ' / ' + str(round(curr_weather['minTemp'])) + degree_sign
     tmp_right_aligned = width - \
-        get_font_width(curr_font, weather_temp) - PADDING_L
-    draw_blk.text((tmp_right_aligned, current_height), weather_temp,
-                      font=curr_font, fill=1)
+        get_font_width(curr_font, sunrise_tm + ' / ' + sunset_tm) - PADDING_L
+    draw_blk.text((tmp_right_aligned, current_height), 
+                  sunrise_tm + ' / ' + sunset_tm,
+                  font=curr_font, fill=1)
 
     current_height += get_font_height(curr_font)
+
     max_char = 20
     max_sum_rows = 3
     
+    day_summary = split_text(curr_weather['day_summary'], max_width=35, max_rows=2)
+    for txt in day_summary:
+        draw_blk.text((PADDING_L, current_height), txt,
+                        font=curr_font, fill=1)
+        current_height += get_font_height(curr_font)
+    '''
     weather_sum_lst = split_text(curr_weather['summary'], max_char)
     for index, weather_sum in enumerate(weather_sum_lst):
         if index >= max_sum_rows:
             weather_sum = '...' #If hit max rows then display a row with just ... and exit loop
         tmp_right_aligned = width - \
             get_font_width(curr_font, weather_sum ) - PADDING_L
-        draw_blk.text((tmp_right_aligned, current_height), weather_sum,
+        draw_blk.text((PADDING_L, current_height), weather_sum,
                       font=curr_font, fill=1)
         current_height += get_font_height(curr_font)
         if index >= max_sum_rows:
             break
+    '''
 
-
-    tmp_right_aligned = width - \
-        get_font_width(curr_font, sunrise_tm + ' / ' + sunset_tm) - PADDING_L
-    draw_blk.text((tmp_right_aligned, current_height), 
-                  sunrise_tm + ' / ' + sunset_tm,
-                  font=curr_font, fill=1)
-    current_height += get_font_height(curr_font)
 
     tmp_right_aligned = (width - PADDING_L/4) /2
     current_height += PADDING_TOP
+    
+    
     '''
     draw_blk.line((PADDING_L+width/2, current_height, width - PADDING_L/2, current_height),
                   fill=1, width=LINE_WIDTH)
@@ -230,14 +253,10 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
     '''
     
     # current_height += height/40
-    current_height = current_height_top_third
-    
-    # Tasks
-    curr_font = FONT_ROBOTO_P
-    tasks_lst = get_tasks()
-    current_height = display_rows(tasks_lst, curr_font, draw_blk, PADDING_L, current_height, 4)
-    if len(tasks_lst) >0:
-        current_height += PADDING_TOP
+    # current_height = current_height_top_third
+    draw_blk.line((int(0), current_height, width, current_height),
+                fill=1, width=LINE_WIDTH)
+    current_height += PADDING_TOP
 
     
     # Calendar    
@@ -270,11 +289,12 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
                       font=FONT_POPPINS_P, fill=1)
         current_height += get_font_height(FONT_POPPINS_P) * 1.1
 
-    # Bottom third
+
+    # Bottom section
     
     # Run Summary
-    #current_height = int(height*0.73)
-    current_height = int(height*0.66)
+    current_height = int(height*0.8)
+    # current_height = int(height*0.66) # Bottom third start
     draw_blk.line((int(0), current_height, width, current_height),
                   fill=1, width=LINE_WIDTH)
     current_height += PADDING_TOP
@@ -317,6 +337,7 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
                   font=run_sum_font, fill=1)
     current_height += get_font_height(run_sum_font) *2
     
+    '''
     # Current Book
     draw_blk.text((PADDING_L, current_height), 'Current Books:',
                   font=FONT_ROBOTO_H3, fill=1)
@@ -331,6 +352,7 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
         current_height = display_rows(book_title_lst, book_font, draw_blk, PADDING_L, current_height, 2)
         book_author_lst = split_text(book_author, max_char, new_line_start='       ')
         current_height = display_rows(book_author_lst, book_font, draw_blk, PADDING_L, current_height, 2)
+    '''
 
     '''
     # Portal-Icons
