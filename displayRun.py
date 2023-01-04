@@ -17,7 +17,7 @@ from PIL.ImageDraw import ImageDraw as TImageDraw
 import lib.epd7in5b_V2 as eInk
 from dataHelper import get_events, get_birthdays, get_weather_darksky, \
     get_run_summary, split_text, get_current_books, get_tasks
-# from dataHelper_test import get_tasks , get_weather_darksky
+# from dataHelper_test import get_tasks , get_weather_darksky, get_run_summary
 from displayHelpers import *
 from settings import LOCALE, ROTATE_IMAGE
 
@@ -47,9 +47,9 @@ FONT_ROBOTO_P = ImageFont.truetype(
 FONT_POPPINS_BOLT_P = ImageFont.truetype(
     os.path.join(FONT_DICT, 'Poppins-Bold.ttf'), 22)
 FONT_POPPINS_P1 = ImageFont.truetype(
-    os.path.join(FONT_DICT, 'Poppins-Regular.ttf'), 25)
+    os.path.join(FONT_DICT, 'Poppins-Regular.ttf'), 30) #was 25
 FONT_POPPINS_P2 = ImageFont.truetype(
-    os.path.join(FONT_DICT, 'Poppins-Regular.ttf'), 20)
+    os.path.join(FONT_DICT, 'Poppins-Regular.ttf'), 25)
 FONT_POPPINS_P = ImageFont.truetype(
     os.path.join(FONT_DICT, 'Poppins-Regular.ttf'), 20)
 LINE_WIDTH = 3
@@ -161,23 +161,26 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
     curr_weather = get_weather_darksky(dttm)
     
     curr_temp = str(round(curr_weather['temperature'])) + degree_sign
+    curr_feels_like = 'Feels Like ' + str(round(curr_weather['curr_feels_like'])) + degree_sign
     draw_red.text((PADDING_L, current_height-20), curr_temp,
                       font=FONT_ROBOTO_TEMPERATURE, fill=1)
     height_left = current_height + get_font_height(FONT_ROBOTO_TEMPERATURE)
 
     curr_font = FONT_POPPINS_P1
-    curr_summary = split_text(curr_weather['curr_summary'], max_width=22, max_rows=3)
+    curr_summary = split_text(curr_weather['curr_summary'], max_width=19, max_rows=3)
     for txt in curr_summary:
         tmp_right_aligned = width - \
             get_font_width(curr_font, txt) - PADDING_L
         draw_blk.text((tmp_right_aligned, current_height), txt,
             font=curr_font, fill=1)
         current_height += get_font_height(curr_font)
+    tmp_right_aligned = width - \
+        get_font_width(curr_font, curr_feels_like) - PADDING_L
+    draw_blk.text((tmp_right_aligned, current_height), curr_feels_like,
+        font=curr_font, fill=1)
+    current_height += get_font_height(curr_font)
     
-    # curr_font = FONT_ROBOTO_P
-
-    # current_height += get_font_height(curr_font)
-
+    
     if height_left > current_height:
         current_height = height_left
 
@@ -200,25 +203,11 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
     max_char = 20
     max_sum_rows = 3
     
-    day_summary = split_text(curr_weather['day_summary'], max_width=35, max_rows=2)
+    day_summary = split_text(curr_weather['day_summary'], max_width=30, max_rows=2)
     for txt in day_summary:
         draw_blk.text((PADDING_L, current_height), txt,
                         font=curr_font, fill=1)
         current_height += get_font_height(curr_font)
-    '''
-    weather_sum_lst = split_text(curr_weather['summary'], max_char)
-    for index, weather_sum in enumerate(weather_sum_lst):
-        if index >= max_sum_rows:
-            weather_sum = '...' #If hit max rows then display a row with just ... and exit loop
-        tmp_right_aligned = width - \
-            get_font_width(curr_font, weather_sum ) - PADDING_L
-        draw_blk.text((PADDING_L, current_height), weather_sum,
-                      font=curr_font, fill=1)
-        current_height += get_font_height(curr_font)
-        if index >= max_sum_rows:
-            break
-    '''
-
 
     tmp_right_aligned = (width - PADDING_L/4) /2
     current_height += PADDING_TOP
@@ -303,39 +292,39 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
                   font=FONT_ROBOTO_H3, fill=1)
     current_height += get_font_height(FONT_ROBOTO_H3)
     run_sum = get_run_summary()
-    run_sum_font = FONT_POPPINS_P2
+    curr_font = FONT_POPPINS_P2
     # curr_week_dist = str(round(float(run_sum['Current Week']['tot_dist']))) + 'mi'
     curr_week_dur = run_sum['Current Week']['duration_str']
     # curr_month_dist = str(run_sum['Current Month']['tot_dist']) + 'mi'
     draw_blk.text((PADDING_L, current_height), 'Week:',
-                  font=run_sum_font, fill=1)
+                  font=curr_font, fill=1)
     draw_blk.text((PADDING_L+100, current_height), 
                   str(round(float(run_sum['Current Week']['tot_dist']))) + 'mi',
-                  font=run_sum_font, fill=1)
+                  font=curr_font, fill=1)
     draw_blk.text((PADDING_L+250, current_height), 
                   run_sum['Current Week']['duration_str'],
-                  font=run_sum_font, fill=1)
-    # logger.info(str(get_font_width(run_sum_font, 'Past 365: ' ) ))
-    current_height += get_font_height(run_sum_font)
+                  font=curr_font, fill=1)
+    # logger.info(str(get_font_width(curr_font, 'Past 365: ' ) ))
+    current_height += get_font_height(curr_font)
     draw_blk.text((PADDING_L, current_height), 'Month:',
-                  font=run_sum_font, fill=1)
+                  font=curr_font, fill=1)
     draw_blk.text((PADDING_L+100, current_height), 
                   str(round(float(run_sum['Current Month']['tot_dist']))) + 'mi',
-                  font=run_sum_font, fill=1)
+                  font=curr_font, fill=1)
     draw_blk.text((PADDING_L+250, current_height), 
                   run_sum['Current Month']['duration_str'],
-                  font=run_sum_font, fill=1)
-    current_height += get_font_height(run_sum_font)
+                  font=curr_font, fill=1)
+    current_height += get_font_height(curr_font)
 
     draw_blk.text((PADDING_L, current_height), 'Year:',
-                  font=run_sum_font, fill=1)
+                  font=curr_font, fill=1)
     draw_blk.text((PADDING_L+100, current_height), 
                   str(round(float(run_sum['Current Year']['tot_dist']))) + 'mi',
-                  font=run_sum_font, fill=1)
+                  font=curr_font, fill=1)
     draw_blk.text((PADDING_L+250, current_height), 
                   run_sum['Current Year']['duration_str'],
-                  font=run_sum_font, fill=1)
-    current_height += get_font_height(run_sum_font) *2
+                  font=curr_font, fill=1)
+    current_height += get_font_height(curr_font) *2
     
     '''
     # Current Book

@@ -163,6 +163,7 @@ def get_weather_darksky(dt):
     w['moonPhase'] = weatherDay['moonPhase']
     
     w['temperature'] = weatherData['currently']['temperature']
+    w['curr_feels_like'] = weatherData['currently']['apparentTemperature']
     w['curr_summary'] = weatherData['currently']['summary']
     
     w['lat'] = lat
