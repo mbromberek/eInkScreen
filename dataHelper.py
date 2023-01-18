@@ -105,43 +105,6 @@ def get_weather(dt) -> List[str]:
     return get_weather_weatherkit(dt)
 
 
-
-def get_weather_weatherapi(dt) -> List[str]:
-    logger.info('Retrieving weather')
-    
-    baseURL = WEATHER_BASE_URL
-    token = WEATHER_KEY
-    lat = LATITUDE
-    lon = LONGITUDE
-    loc = str(lat) + ',' + str(lon)
-
-    # url = baseURL + '/history.json' + '?q=' + loc + '&dt=' + dttm.strftime('%Y-%m-%d') + '&hour=' + dttm.strftime('%H')
-    url = baseURL + '/history.json' + '?q=' + loc + '&dt=' + dt.strftime('%Y-%m-%d')
-
-    w = {}
-    r = requests.get(url, headers={'key':token}, verify=True)
-    weatherData = r.json()
-    
-    logger.info(weatherData)
-    weatherDay = weatherData['forecast']['forecastday'][0]['day']
-    w['maxTemp'] = weatherDay['maxtemp_f']
-    w['minTemp'] = weatherDay['mintemp_f']
-    w['avgTemp'] = weatherDay['avgtemp_f']
-    w['summary'] = weatherDay['condition']['text']
-    w['totalPrecip'] = weatherDay['totalprecip_in']
-    
-    astronomyDay = weatherData['forecast']['forecastday'][0]['astro']
-    w['sunrise'] = astronomyDay['sunrise']
-    w['sunset'] = astronomyDay['sunset']
-    w['moonPhase'] = astronomyDay['moon_phase']
-
-    w['lat'] = lat
-    w['lon'] = lon
-    w['date'] = dt
-
-    return w
-    
-    
 def get_weather_darksky(dt):
     logger.info('Retrieving weather')
     
