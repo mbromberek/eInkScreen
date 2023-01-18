@@ -15,13 +15,13 @@ from PIL.Image import Image as TImage
 from PIL.ImageDraw import ImageDraw as TImageDraw
 
 import lib.epd7in5b_V2 as eInk
-from dataHelper import get_events, get_birthdays, get_weather_darksky, \
+from dataHelper import get_events, get_birthdays, get_weather, \
     get_run_summary, split_text, get_current_books, get_tasks
-# from dataHelper_test import get_tasks , get_weather_darksky, get_run_summary
+# from dataHelper_test import get_tasks , get_weather, get_run_summary
 from displayHelpers import *
-from settings import LOCALE, ROTATE_IMAGE
+from settings import LOCALE, ROTATE_IMAGE, LOG_LVL
 
-logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"),
+logging.basicConfig(level=os.environ.get("LOGLEVEL", LOG_LVL),
                     handlers=[logging.FileHandler(filename="info.log", mode='w'),
                     logging.StreamHandler()])
 logger = logging.getLogger('app')
@@ -158,7 +158,8 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
 
     dttm = datetime.now()
     degree_sign = u'\N{DEGREE SIGN}'
-    curr_weather = get_weather_darksky(dttm)
+    curr_weather = get_weather(dttm)
+    logger.debug(curr_weather)
     
     curr_temp = str(round(curr_weather['temperature'])) + degree_sign
     curr_feels_like = 'Feels Like ' + str(round(curr_weather['curr_feels_like'])) + degree_sign
@@ -190,8 +191,10 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
     draw_blk.text((PADDING_L, current_height), max_min_temp,
                       font=curr_font, fill=1)
 
-    sunrise_tm = 'Rise: ' + datetime.fromtimestamp(curr_weather['sunrise']).strftime('%H:%M')
-    sunset_tm = 'Set: ' + datetime.fromtimestamp(curr_weather['sunset']).strftime('%H:%M')
+    # sunrise_tm = 'Rise: ' + datetime.fromtimestamp(curr_weather['sunrise']).strftime('%H:%M')
+    # sunset_tm = 'Set: ' + datetime.fromtimestamp(curr_weather['sunset']).strftime('%H:%M')
+    sunrise_tm = 'Rise: ' + curr_weather['sunrise'].strftime('%H:%M')
+    sunset_tm = 'Set: ' + curr_weather['sunset'].strftime('%H:%M')
     tmp_right_aligned = width - \
         get_font_width(curr_font, sunrise_tm + ' / ' + sunset_tm) - PADDING_L
     draw_blk.text((tmp_right_aligned, current_height), 

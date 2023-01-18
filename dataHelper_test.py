@@ -21,7 +21,7 @@ logger = logging.getLogger('app')
 def sort_by_date(e: Event):
     return e.start.astimezone()
     
-def get_weather_darksky(dt):
+def get_weather(dt):
     logger.info('TEST DATA: Retrieving weather')
     
     baseURL = WEATHER_BASE_URL

@@ -1,6 +1,7 @@
 import logging
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
 from typing import List
 from urllib.parse import urlparse
 
@@ -12,7 +13,7 @@ from icalevents.icalparser import Event
 from lxml import etree
 from requests.auth import HTTPBasicAuth
 
-from settings import *
+import settings
 
 logger = logging.getLogger('app')
 
@@ -27,7 +28,7 @@ def get_events(max_number: int) -> List[Event]:
     current_timezone = tz.tzlocal()
 
     try:
-        event_list = events(WEBDAV_CALENDAR_URL, fix_apple=WEBDAV_IS_APPLE)
+        event_list = events(settings.WEBDAV_CALENDAR_URL, fix_apple=settings.WEBDAV_IS_APPLE)
         logger.info(event_list)
         #logger.info(WEBDAV_CALENDAR_URL_1)
         #event_list_2 = events(WEBDAV_CALENDAR_URL_1, fix_apple=WEBDAV_IS_APPLE)
@@ -62,15 +63,15 @@ def get_events(max_number: int) -> List[Event]:
 def get_birthdays() -> List[str]:
     logger.info("Retrieving contact (birthday) infos")
     try:
-        auth = HTTPBasicAuth(CALDAV_CONTACT_USER, CALDAV_CONTACT_PWD)
-        baseurl = urlparse(CALDAV_CONTACT_URL).scheme + \
-            '://' + urlparse(CALDAV_CONTACT_URL).netloc
+        auth = HTTPBasicAuth(settings.CALDAV_CONTACT_USER, settings.CALDAV_CONTACT_PWD)
+        baseurl = urlparse(settings.CALDAV_CONTACT_URL).scheme + \
+            '://' + urlparse(settings.CALDAV_CONTACT_URL).netloc
 
-        r = requests.request('PROPFIND', CALDAV_CONTACT_URL, auth=auth, headers={
+        r = requests.request('PROPFIND', settings.CALDAV_CONTACT_URL, auth=auth, headers={
             'content-type': 'text/xml', 'Depth': '1'})
         if r.status_code != 207:
             raise RuntimeError('error in response from %s: %r' %
-                               (CALDAV_CONTACT_URL, r))
+                               (settings.CALDAV_CONTACT_URL, r))
 
         vcardUrlList = []
         root = etree.XML(r.text.encode())
@@ -100,6 +101,12 @@ def get_birthdays() -> List[str]:
         return []
 
 def get_weather(dt) -> List[str]:
+    # return get_weather_darksky(dt)
+    return get_weather_weatherkit(dt)
+
+
+
+def get_weather_weatherapi(dt) -> List[str]:
     logger.info('Retrieving weather')
     
     baseURL = WEATHER_BASE_URL
@@ -138,10 +145,10 @@ def get_weather(dt) -> List[str]:
 def get_weather_darksky(dt):
     logger.info('Retrieving weather')
     
-    baseURL = WEATHER_BASE_URL
-    token = WEATHER_KEY
-    lat = LATITUDE
-    lon = LONGITUDE
+    baseURL = settings.WEATHER_BASE_URL
+    token = settings.WEATHER_KEY
+    lat = settings.LATITUDE
+    lon = settings.LONGITUDE
     loc = str(lat) + ',' + str(lon)
 
     darkSkyUrl = baseURL + '/' + token + '/' + str(lat) + ',' + str(lon) + ',' + dt.strftime('%Y-%m-%dT%H:%M:%S')
@@ -172,6 +179,52 @@ def get_weather_darksky(dt):
 
     return w
 
+def get_weather_weatherkit(dt) -> List[str]:
+    logger.info('Retrieving weather')
+
+    dttm_end = dt + timedelta(seconds=1)
+    
+    baseURL = settings.WEATHER_BASE_URL
+    token = settings.WEATHER_KEY
+    lat = settings.LATITUDE
+    lon = settings.LONGITUDE
+    lang = settings.LANGUAGE
+    dataSets = 'currentWeather,forecastDaily'
+
+    url = baseURL + '/' + lang + '/' + lat + '/' + lon + '?dataSets=' + dataSets
+    logger.info(url)
+
+    w = {}
+    r = requests.get(url, headers={'Authorization':'Bearer ' + token}, verify=True)
+    weatherData = r.json()
+    
+    logger.debug(weatherData)
+    weatherDay = weatherData['forecastDaily']['days'][0]
+    w['maxTemp'] = c2F(weatherDay['temperatureMax'])
+    w['minTemp'] = c2F(weatherDay['temperatureMin'])
+    w['day_summary'] = add_space_in_camelCase(\
+        weatherDay['restOfDayForecast']['conditionCode']) 
+    
+    w['sunrise'] = toLocalTz(\
+        datetime.strptime(weatherDay['sunrise'],'%Y-%m-%dT%H:%M:%SZ'))
+    w['sunset'] = toLocalTz(\
+        datetime.strptime(weatherDay['sunset'],'%Y-%m-%dT%H:%M:%SZ'))
+    w['moonPhase'] = add_space_in_camelCase(weatherDay['moonPhase']) 
+
+    weatherCurr = weatherData['currentWeather']
+    w['temperature'] = c2F(weatherCurr['temperature'])
+    w['curr_feels_like'] = c2F(weatherCurr['temperatureApparent'])
+    w['curr_summary'] = add_space_in_camelCase(weatherCurr['conditionCode'])
+
+
+    w['lat'] = lat
+    w['lon'] = lon
+    w['date'] = dt
+
+    return w
+    
+    
+
 def split_text(s, max_width, new_line_start='', max_rows=9999) -> List[str]:
     # logger.info('split_text to width: ' + str(max_width))
     str_split_lst = []
@@ -200,8 +253,8 @@ def split_text(s, max_width, new_line_start='', max_rows=9999) -> List[str]:
 def get_run_summary() -> List[str]:
     logger.info('run summary')
     
-    baseURL = WRKT_URL
-    token = WRKT_KEY
+    baseURL = settings.WRKT_URL
+    token = settings.WRKT_KEY
     
     r = requests.get(baseURL + '/api/run_summary/', headers={'Authorization':'Bearer ' + token}, verify=True)
     if r.status_code == 200:
@@ -213,8 +266,8 @@ def get_run_summary() -> List[str]:
 
 def get_current_books() -> List[str]:
     logger.info('current books')
-    baseURL = WRKT_URL
-    token = WRKT_KEY
+    baseURL = settings.WRKT_URL
+    token = settings.WRKT_KEY
     
     r = requests.get(baseURL + '/api/books/?status=reading', \
         headers={'Authorization':'Bearer ' + token}, verify=True)
@@ -228,3 +281,29 @@ def get_current_books() -> List[str]:
 def get_tasks() -> List[str]:
     return []
 
+def toUTC(dttm):
+    return dttm.astimezone(ZoneInfo(key='UTC'))
+def toLocalTz(dttm):
+    return dttm.astimezone(ZoneInfo(key=settings.LOCAL_TZ))
+
+
+def add_space_in_camelCase(str):
+    new_string=""
+    for s in str:
+        if s.isupper():
+            new_string += ' ' + s
+        else:
+            new_string += s
+    return new_string.strip()
+
+def c2F(temp):
+    '''
+    Convert Celsius to Fahrenheit
+    '''
+    return (temp * 9/5) +32
+
+def f2C(temp):
+    '''
+    Convert Fahrenheit to Celsius
+    '''
+    return (temp -32) * 5/9
