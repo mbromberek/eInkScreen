@@ -1,4 +1,6 @@
-LOCALE = "de_DE"
+LOCALE = "en_US.UTF-8"
+LOCAL_TZ = "America/New_York"
+LOG_LVL = 'INFO'
 
 WEBDAV_CALENDAR_URL = "webcal://..."
 WEBDAV_IS_APPLE = True
@@ -8,3 +10,15 @@ CALDAV_CONTACT_USER = "username"
 CALDAV_CONTACT_PWD = "passw0rd"
 
 ROTATE_IMAGE = True
+
+# weather api
+WEATHER_BASE_URL = 'https://weatherkit.apple.com/api/v1/weather'
+WEATHER_KEY = ''
+LATITUDE = '40.60189'
+LONGITUDE = '-74.06026'
+LANGUAGE = 'en_US'
+
+
+# personal site
+WRKT_URL = ''
+WRKT_KEY = ''
