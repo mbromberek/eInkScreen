@@ -155,7 +155,7 @@ def get_weather_weatherkit(dt) -> List[str]:
     dataSets = 'currentWeather,forecastDaily'
 
     url = baseURL + '/' + lang + '/' + lat + '/' + lon + '?dataSets=' + dataSets
-    logger.info(url)
+    logger.debug(url)
 
     w = {}
     r = requests.get(url, headers={'Authorization':'Bearer ' + token}, verify=True)
@@ -247,7 +247,7 @@ def get_tasks() -> List[str]:
 def toUTC(dttm):
     return dttm.astimezone(ZoneInfo(key='UTC'))
 def toLocalTz(dttm):
-    return dttm.astimezone(ZoneInfo(key=settings.LOCAL_TZ))
+    return dttm.replace(tzinfo=timezone.utc).astimezone(tz=ZoneInfo(key=settings.LOCAL_TZ))
 
 
 def add_space_in_camelCase(str):

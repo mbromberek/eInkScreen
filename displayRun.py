@@ -128,23 +128,6 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
                   str(day_number), font=FONT_ROBOTO_DATE, fill=1)
     current_height += current_font_height
 
-
-
-    # Month-Overview (with day-string)
-    '''
-    current_height += PADDING_TOP
-    day_of_month = str(day_number) + "/" + str(max_days_in_month)
-    draw_blk.text((PADDING_L, current_height), day_of_month,
-                  font=FONT_ROBOTO_P, fill=1)
-
-    tmp_right_aligned = width - \
-        get_font_width(FONT_ROBOTO_P, day_str.upper()) - PADDING_L/4
-    draw_blk.text((tmp_right_aligned, current_height), day_str.upper(),
-                  font=FONT_ROBOTO_P, fill=1)
-
-    current_height += get_font_height(FONT_ROBOTO_P) + PADDING_TOP
-    '''
-    # current_height += get_font_height(FONT_ROBOTO_P) *2
     draw_blk.line((int(0), current_height, width, current_height),
                   fill=1, width=LINE_WIDTH)
     current_height += PADDING_TOP
@@ -152,10 +135,7 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
 
 
 
-    # Weather
-    # current_height = height/20 + 10
-    # current_height = PADDING_TOP + 5
-
+    # Weather Section
     dttm = datetime.now()
     degree_sign = u'\N{DEGREE SIGN}'
     curr_weather = get_weather(dttm)
@@ -191,8 +171,6 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
     draw_blk.text((PADDING_L, current_height), max_min_temp,
                       font=curr_font, fill=1)
 
-    # sunrise_tm = 'Rise: ' + datetime.fromtimestamp(curr_weather['sunrise']).strftime('%H:%M')
-    # sunset_tm = 'Set: ' + datetime.fromtimestamp(curr_weather['sunset']).strftime('%H:%M')
     sunrise_tm = 'Rise: ' + curr_weather['sunrise'].strftime('%H:%M')
     sunset_tm = 'Set: ' + curr_weather['sunset'].strftime('%H:%M')
     tmp_right_aligned = width - \
@@ -216,36 +194,6 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
     current_height += PADDING_TOP
     
     
-    '''
-    draw_blk.line((PADDING_L+width/2, current_height, width - PADDING_L/2, current_height),
-                  fill=1, width=LINE_WIDTH)
-    '''
-
-    '''
-    tmp_right_aligned = width - \
-        get_font_width(FONT_ROBOTO_P, sunset_tm) - PADDING_L/4
-    draw_blk.text((tmp_right_aligned, current_height), sunset_tm,
-                  font=FONT_ROBOTO_P, fill=1)
-    '''
-
-    # Month-Tally-Overview
-    '''
-    current_height += PADDING_TOP
-    tally_height = height/40
-    tally_width = LINE_WIDTH + width/120  # width + padding
-    available_width = width - PADDING_L
-    tally_number = int(available_width / tally_width *
-                       (day_number / max_days_in_month))
-    x_position = PADDING_L + LINE_WIDTH/2
-    for i in range(0, tally_number):
-        draw_blk.line((x_position, current_height, x_position,
-                      current_height + tally_height), fill=1, width=LINE_WIDTH)
-        x_position += tally_width
-    current_height += tally_height
-    '''
-    
-    # current_height += height/40
-    # current_height = current_height_top_third
     draw_blk.line((int(0), current_height, width, current_height),
                 fill=1, width=LINE_WIDTH)
     current_height += PADDING_TOP
@@ -345,32 +293,6 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
         book_author_lst = split_text(book_author, max_char, new_line_start='       ')
         current_height = display_rows(book_author_lst, book_font, draw_blk, PADDING_L, current_height, 2)
     '''
-
-    '''
-    # Portal-Icons
-    y = PADDING_L
-    # bithday_persons = get_birthdays()
-    bithday_persons =[]
-    draw_cake = (len(bithday_persons) > 0)
-    max_image_height = 0
-    for image in get_portal_images(draw_cake, bool(random.getrandbits(1)), bool(random.getrandbits(1)), bool(random.getrandbits(1))):
-        image_blk.paste(image, (y, current_height))
-        image_width, image_height = image.size
-        y += image_width + PADDING_TOP
-        max_image_height = image_height if (
-            image_height > max_image_height) else max_image_height
-    current_height += max_image_height + PADDING_TOP
-    '''
-    
-    # Draw name of birthday-person
-    '''
-    if draw_cake:
-        bithday_person_string = ", ".join(bithday_persons)
-        draw_red.text((PADDING_L, current_height), bithday_person_string,
-                      font=FONT_ROBOTO_P, fill=1)
-        current_height += get_font_height(FONT_ROBOTO_P)
-    '''
-    
      
 def display_rows(row_lst, font_det, draw_color, padding, strt_height, max_rows=999):
     current_height = strt_height
