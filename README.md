@@ -1,12 +1,11 @@
 <div id="top"></div>
 
 
-<h3 align="center">Portal eInk Calendar</h3>
+<h3 align="center">eInk Smart Display</h3>
 
   <p align="center">
-    A small desk-calendar with the theme of a <a href="https://store.steampowered.com/app/620/Portal_2/">portal</a> chamber info.
-    <br />
-    It displays the current date, the next few events in your calendar and whether a person in your contact list has a birthday (inc. their name).
+    Shows the current date, current weather, the next few events in your calendar, and running statistics.
+    The original code and most of this README is from <a href="https://github.com/13Bytes/eInkCalendar">eInkCalendar</a>
   </p>
 </div>
 
@@ -30,7 +29,6 @@
       </ul>
     </li>
     <li><a href="#frame">Frame</a></li>
-    <li><a href="#questions">Questions</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
@@ -40,13 +38,9 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-The finished project on my desk:
+The finished project on my counter:
 
 <img src="https://user-images.githubusercontent.com/12069002/150647924-80f5f8fa-098a-4592-b257-7ac27326abfb.jpg" height=500>
-<img src="https://user-images.githubusercontent.com/12069002/150647951-48b0ee2c-e09c-45f7-ba01-4635f47f1a91.jpg" height=500>
-
-The pie is displayed when a person in your contacts has a birthday (along with the name below it).
-The other three icons are currently displayed randomly.
 
 
 
@@ -60,8 +54,8 @@ This repo includes the software (100% python) and the STLs of the frame.
 I used the following hardware:
 
 * [Waveshare 800×480, 7.5inch E-Ink display (13505)](https://www.waveshare.com/product/displays/7.5inch-e-paper-hat-b.htm)
-* [Raspberry Pi 3b](https://www.raspberrypi.com/products/raspberry-pi-3-model-b/)\
-(The Raspi is a bit overkill if you only want to update the calendar. But since it's powered on anyways, I use it to host many other things as well. If you only want to use it for the calendar, you should take a look at the Raspberry Pi Zero series)
+* [Raspberry Pi 3b](https://www.raspberrypi.com/products/raspberry-pi-3-model-b/)
+* Case was 3D printed, details are <a href="#frame">below</a>
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
@@ -101,8 +95,8 @@ The prerequisites are based on [this](https://www.waveshare.com/wiki/7.5inch_e-P
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/13Bytes/eInkCalendar
-   cd eInkCalendar
+   git clone https://github.com/mbromberek/eInkScreen
+   cd eInkScreen
    ```
 2. Install requirements
    ```sh
@@ -124,27 +118,32 @@ The prerequisites are based on [this](https://www.waveshare.com/wiki/7.5inch_e-P
    
    `WEBDAV_IS_APPLE = True` Is the calendar hosted on icloud?
    
-   `CALDAV_CONTACT_USER = "louis"` Username for logging into your CALDAV contact-list.
+   `WEATHER_BASE_URL = 'https://weatherkit.apple.com/api/v1/weather'` The address for getting weather from Apple WeatherKit.
+
+   `WEATHER_KEY = 'XXXXXXXXXXXX'` Bearer token for WeatherKit.
+
+   `LATITUDE = '40.60189'` Latitude Coordinate for getting current weather.
    
-   `CALDAV_CONTACT_PWD = "secret"` Password for logging into your CALDAV contact-list.
+   `LONGITUDE = '-74.06026'` Longitude Coordinate for getting current weather.
+   
+   `LANGUAGE = 'en_US'` Language for results to be returned.
    
    `ROTATE_IMAGE = True` This will rotate the image 180° before printing it to the calendar. `True` is required if you use my STL, as the dipay is mounted upside-down.
 
 
-
 4. Add the start-script to your boot-process:\
-   (You might need to adapt the path `/home/pi/eInkCalendar/run_calendar.sh` acordingly)
+   (You might need to adapt the path `/home/pi/eInkScreen/run_screen.sh` acordingly)
 
-   Make `run_calendar.sh` executable
+   Make `run_screen.sh` executable
    ```sh
-   chmod +x /home/pi/eInkCalendar/run_calendar.sh
+   chmod +x /home/pi/eInkScreen/run_screen.sh
    ``` 
    and add it to crontab, as follows:
    ```sh
    crontab -e
    ```
    and add following line:\
-   ```@reboot sleep 60 && /home/pi/eInkCalendar/run_calendar.sh```\
+   ```@reboot sleep 60 && /home/pi/eInkScreen/run_screen.sh```\
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -152,33 +151,20 @@ The prerequisites are based on [this](https://www.waveshare.com/wiki/7.5inch_e-P
 
 ## Frame
 
-The STLs of the frame can be found in [hardware](https://github.com/13Bytes/eInkCalendar/tree/main/hardware).
-It's designed for 3D-printing.
-The two parts can be screwed together in three of the four corners.
+The STLs of the frame can be found in [hardware](https://github.com/mbromberek/eInkScreen/tree/main/hardware).
 
-The raspi is held in place by threaded heat set inserts.
-
-
-<img src="https://user-images.githubusercontent.com/12069002/150642718-5a24c717-1a19-4883-b932-1f1588f124fa.png" height=400>
-<img src="https://user-images.githubusercontent.com/12069002/150642799-6145283c-6e35-43b8-842b-40c608fecd77.png" height=400>
+Details about 3D printed Frame can be found on the original [project's site](https://github.com/13Bytes/eInkCalendar)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-
-## Questions
-
-Stuck somewhere? \
-You can <a href="#contact">contact</a> me, or create a [issue](https://github.com/13Bytes/eInkCalendar/issues).
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
 
 
 
 <!-- CONTACT -->
 ## Contact
+* Mike Bromberek
+* Email [mikebromberek@gmail.com](mikebromberek@gmail.com)
+* Mastodon [@mikebromberek@twit.social](https://twit.social/@mikebromberek)
 
-Louis - [@Louis_D_](https://twitter.com/Louis_D_) - coding@13bytes.de
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -186,8 +172,7 @@ Louis - [@Louis_D_](https://twitter.com/Louis_D_) - coding@13bytes.de
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
-
-* I got the idea from following [reddit-post](https://www.reddit.com/r/RASPBERRY_PI_PROJECTS/comments/qujt3i/wip_portal_desktop_calendar/).
-* This readme-page uses this [template](https://github.com/othneildrew/Best-README-Template).
+* I got the idea from Jason Snell <a href="https://sixcolors.com/post/2022/09/a-smart-e-ink-calendar-comes-to-my-kitchen/">A smart E Ink calendar comes to my kitchen</a>
+* The start of the code and the details for 3D printing the frame are from Louis - [@Louis_D_](https://twitter.com/Louis_D_) - coding@13bytes.de. Original code is <a href="https://github.com/13Bytes/eInkCalendar">eInkCalendar</a>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
