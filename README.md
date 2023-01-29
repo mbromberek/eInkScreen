@@ -40,9 +40,8 @@
 ## About The Project
 The finished project on my counter:
 
-<img src="https://user-images.githubusercontent.com/12069002/150647924-80f5f8fa-098a-4592-b257-7ac27326abfb.jpg" height=500>
-
-
+<img src="https://github.com/mbromberek/eInkScreen/blob/main/pictures/SmartScreen.jpeg" height=500>
+<!--<img src="https://user-images.githubusercontent.com/12069002/150647924-80f5f8fa-098a-4592-b257-7ac27326abfb.jpg" height=500>-->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
