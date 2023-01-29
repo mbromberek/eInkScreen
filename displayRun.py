@@ -141,10 +141,12 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
     curr_weather = get_weather(dttm)
     logger.debug(curr_weather)
     
+    if 'temperature' not in curr_weather:
+        quit()
     curr_temp = str(round(curr_weather['temperature'])) + degree_sign
     curr_feels_like = 'Feels Like ' + str(round(curr_weather['curr_feels_like'])) + degree_sign
     draw_red.text((PADDING_L, current_height-20), curr_temp,
-                      font=FONT_ROBOTO_TEMPERATURE, fill=1)
+                    font=FONT_ROBOTO_TEMPERATURE, fill=1)
     height_left = current_height + get_font_height(FONT_ROBOTO_TEMPERATURE)
 
     curr_font = FONT_POPPINS_P1
@@ -169,15 +171,15 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
     tmp_right_aligned = width - \
         get_font_width(curr_font, max_min_temp) - PADDING_L
     draw_blk.text((PADDING_L, current_height), max_min_temp,
-                      font=curr_font, fill=1)
+                    font=curr_font, fill=1)
 
     sunrise_tm = 'Rise: ' + curr_weather['sunrise'].strftime('%H:%M')
     sunset_tm = 'Set: ' + curr_weather['sunset'].strftime('%H:%M')
     tmp_right_aligned = width - \
         get_font_width(curr_font, sunrise_tm + ' / ' + sunset_tm) - PADDING_L
     draw_blk.text((tmp_right_aligned, current_height), 
-                  sunrise_tm + ' / ' + sunset_tm,
-                  font=curr_font, fill=1)
+                sunrise_tm + ' / ' + sunset_tm,
+                font=curr_font, fill=1)
 
     current_height += get_font_height(curr_font)
 

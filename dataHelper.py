@@ -155,13 +155,18 @@ def get_weather_weatherkit(dt) -> List[str]:
     dataSets = 'currentWeather,forecastDaily'
 
     url = baseURL + '/' + lang + '/' + lat + '/' + lon + '?dataSets=' + dataSets
-    logger.debug(url)
+    logger.info(url)
 
     w = {}
     r = requests.get(url, headers={'Authorization':'Bearer ' + token}, verify=True)
     weatherData = r.json()
     
-    logger.debug(weatherData)
+    logger.info(weatherData)
+    if 'reason' in weatherData and weatherData['reason'] == 'NOT_ENABLED':
+        logger.error('Not able to get data:')
+        logger.error(str(r))
+        return
+
     weatherDay = weatherData['forecastDaily']['days'][0]
     w['maxTemp'] = c2F(weatherDay['temperatureMax'])
     w['minTemp'] = c2F(weatherDay['temperatureMin'])
