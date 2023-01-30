@@ -17,6 +17,8 @@ import settings
 
 logger = logging.getLogger('app')
 
+RETRY_SLEEP_SECONDS = 5
+MAX_WEATHER_RETRY = 5
 
 def sort_by_date(e: Event):
     return e.start.astimezone()
@@ -102,7 +104,14 @@ def get_birthdays() -> List[str]:
 
 def get_weather(dt) -> List[str]:
     # return get_weather_darksky(dt)
-    return get_weather_weatherkit(dt)
+    w = ''
+    try_ct = 0
+    while w == '' and try_ct < MAX_WEATHER_RETRY:
+        if try_ct >0:
+            sleep(RETRY_SLEEP_SECONDS * 1000)
+        w = get_weather_weatherkit(dt)
+        try_ct +=1
+    return w
 
 
 def get_weather_darksky(dt):
@@ -164,8 +173,8 @@ def get_weather_weatherkit(dt) -> List[str]:
     logger.info(weatherData)
     if 'reason' in weatherData and weatherData['reason'] == 'NOT_ENABLED':
         logger.error('Not able to get data:')
-        logger.error(str(r))
-        return
+        logger.error(str(r) + str(r.json()))
+        return ''
 
     weatherDay = weatherData['forecastDaily']['days'][0]
     w['maxTemp'] = c2F(weatherDay['temperatureMax'])

@@ -21,10 +21,12 @@ from dataHelper import get_events, get_birthdays, get_weather, \
 from displayHelpers import *
 from settings import LOCALE, ROTATE_IMAGE, LOG_LVL
 
+FORMAT = '%(asctime)s - %(funcName)s - %(levelname)s - %(message)s'
 logging.basicConfig(level=os.environ.get("LOGLEVEL", LOG_LVL),
                     handlers=[logging.FileHandler(filename="info.log", mode='w'),
-                    logging.StreamHandler()])
+                    logging.StreamHandler()], format=FORMAT )
 logger = logging.getLogger('app')
+
 
 CURRENT_DICT = os.path.dirname(os.path.realpath(__file__))
 PICTURE_DICT = os.path.join(CURRENT_DICT, 'pictures')
@@ -141,7 +143,7 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
     curr_weather = get_weather(dttm)
     logger.debug(curr_weather)
     
-    if 'temperature' not in curr_weather:
+    if curr_weather == '' or 'temperature' not in curr_weather:
         quit()
     curr_temp = str(round(curr_weather['temperature'])) + degree_sign
     curr_feels_like = 'Feels Like ' + str(round(curr_weather['curr_feels_like'])) + degree_sign
