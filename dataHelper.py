@@ -107,9 +107,13 @@ def get_weather(dt) -> List[str]:
     w = ''
     try_ct = 0
     while w == '' and try_ct < MAX_WEATHER_RETRY:
+        time.sleep(RETRY_SLEEP_SECONDS*try_ct)
         if try_ct >0:
-            sleep(RETRY_SLEEP_SECONDS * 1000)
-        w = get_weather_weatherkit(dt)
+            logger.info('Attempt number: ' + str(try_ct))
+        try:
+            w = get_weather_weatherkit(dt)
+        except Exception as e:
+            logger.critical(e)
         try_ct +=1
     return w
 
@@ -170,7 +174,7 @@ def get_weather_weatherkit(dt) -> List[str]:
     r = requests.get(url, headers={'Authorization':'Bearer ' + token}, verify=True)
     weatherData = r.json()
     
-    logger.info(weatherData)
+    # logger.info(weatherData)
     if 'reason' in weatherData and weatherData['reason'] == 'NOT_ENABLED':
         logger.error('Not able to get data:')
         logger.error(str(r) + str(r.json()))
@@ -233,12 +237,16 @@ def get_run_summary() -> List[str]:
     baseURL = settings.WRKT_URL
     token = settings.WRKT_KEY
     
-    r = requests.get(baseURL + '/api/run_summary/', headers={'Authorization':'Bearer ' + token}, verify=True)
-    if r.status_code == 200:
-        data = r.json()
-        # logger.info(data)
-        return data
-    else:
+    try:
+        r = requests.get(baseURL + '/api/run_summary/', headers={'Authorization':'Bearer ' + token}, verify=True)
+        if r.status_code == 200:
+            data = r.json()
+            # logger.info(data)
+            return data
+        else:
+            return None
+    except  Exception as e:
+        logger.critical(e)
         return None
 
 def get_current_books() -> List[str]:

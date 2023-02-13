@@ -247,39 +247,40 @@ def render_content(draw_blk: TImageDraw, image_blk: TImage,  draw_red: TImageDra
                   font=FONT_ROBOTO_H3, fill=1)
     current_height += get_font_height(FONT_ROBOTO_H3)
     run_sum = get_run_summary()
-    curr_font = FONT_POPPINS_P2
-    # curr_week_dist = str(round(float(run_sum['Current Week']['tot_dist']))) + 'mi'
-    curr_week_dur = run_sum['Current Week']['duration_str']
-    # curr_month_dist = str(run_sum['Current Month']['tot_dist']) + 'mi'
-    draw_blk.text((PADDING_L, current_height), 'Week:',
-                  font=curr_font, fill=1)
-    draw_blk.text((PADDING_L+100, current_height), 
-                  str(round(float(run_sum['Current Week']['tot_dist']))) + 'mi',
-                  font=curr_font, fill=1)
-    draw_blk.text((PADDING_L+250, current_height), 
-                  run_sum['Current Week']['duration_str'],
-                  font=curr_font, fill=1)
-    # logger.info(str(get_font_width(curr_font, 'Past 365: ' ) ))
-    current_height += get_font_height(curr_font)
-    draw_blk.text((PADDING_L, current_height), 'Month:',
-                  font=curr_font, fill=1)
-    draw_blk.text((PADDING_L+100, current_height), 
-                  str(round(float(run_sum['Current Month']['tot_dist']))) + 'mi',
-                  font=curr_font, fill=1)
-    draw_blk.text((PADDING_L+250, current_height), 
-                  run_sum['Current Month']['duration_str'],
-                  font=curr_font, fill=1)
-    current_height += get_font_height(curr_font)
+    if run_sum is not None:
+        curr_font = FONT_POPPINS_P2
+        # curr_week_dist = str(round(float(run_sum['Current Week']['tot_dist']))) + 'mi'
+        curr_week_dur = run_sum['Current Week']['duration_str']
+        # curr_month_dist = str(run_sum['Current Month']['tot_dist']) + 'mi'
+        draw_blk.text((PADDING_L, current_height), 'Week:',
+                    font=curr_font, fill=1)
+        draw_blk.text((PADDING_L+100, current_height), 
+                    str(round(float(run_sum['Current Week']['tot_dist']))) + 'mi',
+                    font=curr_font, fill=1)
+        draw_blk.text((PADDING_L+250, current_height), 
+                    run_sum['Current Week']['duration_str'],
+                    font=curr_font, fill=1)
+        # logger.info(str(get_font_width(curr_font, 'Past 365: ' ) ))
+        current_height += get_font_height(curr_font)
+        draw_blk.text((PADDING_L, current_height), 'Month:',
+                    font=curr_font, fill=1)
+        draw_blk.text((PADDING_L+100, current_height), 
+                    str(round(float(run_sum['Current Month']['tot_dist']))) + 'mi',
+                    font=curr_font, fill=1)
+        draw_blk.text((PADDING_L+250, current_height), 
+                    run_sum['Current Month']['duration_str'],
+                    font=curr_font, fill=1)
+        current_height += get_font_height(curr_font)
 
-    draw_blk.text((PADDING_L, current_height), 'Year:',
-                  font=curr_font, fill=1)
-    draw_blk.text((PADDING_L+100, current_height), 
-                  str(round(float(run_sum['Current Year']['tot_dist']))) + 'mi',
-                  font=curr_font, fill=1)
-    draw_blk.text((PADDING_L+250, current_height), 
-                  run_sum['Current Year']['duration_str'],
-                  font=curr_font, fill=1)
-    current_height += get_font_height(curr_font) *2
+        draw_blk.text((PADDING_L, current_height), 'Year:',
+                    font=curr_font, fill=1)
+        draw_blk.text((PADDING_L+100, current_height), 
+                    str(round(float(run_sum['Current Year']['tot_dist']))) + 'mi',
+                    font=curr_font, fill=1)
+        draw_blk.text((PADDING_L+250, current_height), 
+                    run_sum['Current Year']['duration_str'],
+                    font=curr_font, fill=1)
+        current_height += get_font_height(curr_font) *2
     
     '''
     # Current Book
